@@ -88,7 +88,7 @@ services:
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       OPENROUTER_CAPTION_MODEL: ${OPENROUTER_CAPTION_MODEL:-openrouter/free}
       OPENROUTER_LABEL_MODEL: ${OPENROUTER_LABEL_MODEL:-openrouter/free}
-      OPENROUTER_SAFETY_MODEL: ${OPENROUTER_SAFETY_MODEL:-nvidia/nemotron-3.5-content-safety:free}
+      OPENROUTER_SAFETY_MODEL: ${OPENROUTER_SAFETY_MODEL:-openrouter/free}
     depends_on:
       postgres:
         condition: service_healthy

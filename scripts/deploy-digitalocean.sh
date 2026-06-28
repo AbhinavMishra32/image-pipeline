@@ -162,7 +162,7 @@ PY
 )}"
 OPENROUTER_CAPTION_MODEL="${OPENROUTER_CAPTION_MODEL:-openrouter/free}"
 OPENROUTER_LABEL_MODEL="${OPENROUTER_LABEL_MODEL:-openrouter/free}"
-OPENROUTER_SAFETY_MODEL="${OPENROUTER_SAFETY_MODEL:-nvidia/nemotron-3.5-content-safety:free}"
+OPENROUTER_SAFETY_MODEL="${OPENROUTER_SAFETY_MODEL:-openrouter/free}"
 DATABASE_URL="${existing_database_url:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}}"
 REDIS_URL="${existing_redis_url:-redis://redis:6379}"
 CORS_ORIGINS="${existing_cors_origins:-http://${DROPLET_IP}}"
