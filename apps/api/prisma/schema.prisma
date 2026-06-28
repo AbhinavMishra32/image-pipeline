@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum JobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FLAGGED
+  FAILED
+}
+
+enum StepStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum StepName {
+  IMAGE_CAPTIONING
+  LABEL_DETECTION
+  CONTENT_SAFETY
+}
+
+enum JobEventType {
+  JOB_CREATED
+  JOB_QUEUED
+  JOB_STARTED
+  STEP_STARTED
+  STEP_COMPLETED
+  STEP_FAILED
+  STEP_REUSED
+  JOB_COMPLETED
+  JOB_FLAGGED
+  JOB_FAILED
+  JOB_RETRIED
+}
+
+model User {
+  id             String         @id @default(cuid())
+  email          String         @unique
+  passwordHash   String         @map("password_hash")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  mediaJobs      MediaJob[]
+  notifications  Notification[]
+
+  @@map("users")
+}
+
+model MediaJob {
+  id               String      @id @default(cuid())
+  userId           String      @map("user_id")
+  originalFilename String      @map("original_filename")
+  mimeType         String      @map("mime_type")
+  sizeBytes        Int         @map("size_bytes")
+  sha256           String
+  storageProvider  String      @map("storage_provider")
+  storageBucket    String      @map("storage_bucket")
+  storageKey       String      @map("storage_key")
+  status           JobStatus
+  attempts         Int         @default(0)
+  maxAttempts      Int         @default(3) @map("max_attempts")
+  caption          String?
+  labels           Json?
+  safetyResult     Json?       @map("safety_result")
+  flagged          Boolean     @default(false)
+  flaggedCategory  String?     @map("flagged_category")
+  lastError        Json?       @map("last_error")
+  queuedAt         DateTime?   @map("queued_at")
+  startedAt        DateTime?   @map("started_at")
+  completedAt      DateTime?   @map("completed_at")
+  failedAt         DateTime?   @map("failed_at")
+  createdAt        DateTime    @default(now()) @map("created_at")
+  updatedAt        DateTime    @updatedAt @map("updated_at")
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  steps            JobStep[]
+  events           JobEvent[]
+
+  @@index([userId, createdAt])
+  @@map("media_jobs")
+}
+
+model JobStep {
+  id          String      @id @default(cuid())
+  jobId       String      @map("job_id")
+  name        StepName
+  position    Int
+  status      StepStatus
+  attempt     Int         @default(0)
+  outputJson  Json?       @map("output_json")
+  errorJson   Json?       @map("error_json")
+  startedAt   DateTime?   @map("started_at")
+  completedAt DateTime?   @map("completed_at")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  job         MediaJob    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, name])
+  @@index([jobId, position])
+  @@map("job_steps")
+}
+
+model JobEvent {
+  id         String       @id @default(cuid())
+  jobId       String      @map("job_id")
+  type        JobEventType
+  payloadJson Json?       @map("payload_json")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  job         MediaJob    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId, createdAt])
+  @@map("job_events")
+}
+
+model Notification {
+  id         String    @id @default(cuid())
+  userId      String   @map("user_id")
+  title       String
+  body        String
+  readAt      DateTime? @map("read_at")
+  dataJson    Json?    @map("data_json")
+  createdAt   DateTime @default(now()) @map("created_at")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("notifications")
+}

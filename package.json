@@ -1,0 +1,15 @@
+{
+  "name": "image-pipeline",
+  "private": true,
+  "packageManager": "pnpm@11.7.0",
+  "scripts": {
+    "dev": "docker compose up -d postgres redis minio && turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "check": "turbo run check"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.6",
+    "typescript": "^5.9.3"
+  }
+}
